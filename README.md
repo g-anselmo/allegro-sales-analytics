@@ -147,4 +147,4 @@ To start again from an empty database: `docker compose down -v` and `docker comp
 
 ---
 
-Developed by **Gustavo Anselmo** | [LinkedIn](https://www.linkedin.com/in/g-anselmo/) | [GitHub](https://github.com/gustavo03anselmo-afk)
+Developed by **Gustavo Anselmo** | [LinkedIn](https://www.linkedin.com/in/g-anselmo/) | [GitHub](https://github.com/g-anselmo)
