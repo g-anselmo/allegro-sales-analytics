@@ -1,0 +1,8 @@
+relationship 807676c1-512c-4990-9f42-2345b6071853
+	fromColumn: orders.order_date
+	toColumn: Calendar.Date
+
+relationship 6a423a8f-36a7-4c42-a63d-1f6ab15f3e9d
+	fromColumn: targets.month
+	toColumn: Calendar.Date
+

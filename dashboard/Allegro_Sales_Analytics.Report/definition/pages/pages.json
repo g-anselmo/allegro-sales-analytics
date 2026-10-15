@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
+  "pageOrder": [
+    "p_home",
+    "p_overview",
+    "p_categories",
+    "p_customers",
+    "p_operations"
+  ],
+  "activePageName": "p_categories"
+}

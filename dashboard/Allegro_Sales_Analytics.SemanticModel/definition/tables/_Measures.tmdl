@@ -1,0 +1,418 @@
+table _Measures
+	lineageTag: 8fbd4b36-2505-402f-af44-f7011e7cd0a8
+
+	measure Revenue = CALCULATE ( SUM ( orders[revenue_pln] ), orders[order_status] = "Delivered" )
+		formatString: #,0 zł
+		displayFolder: 1. Core
+		lineageTag: 7c1c8efa-da14-4cab-b205-4d75f5fa1cec
+
+	measure Orders = CALCULATE ( COUNTROWS ( orders ), orders[order_status] = "Delivered" )
+		formatString: #,0
+		displayFolder: 1. Core
+		lineageTag: 52e73b6c-f4e6-4c84-8194-eabda454f79f
+
+	measure 'All Orders' = COUNTROWS ( orders )
+		formatString: #,0
+		displayFolder: 1. Core
+		lineageTag: 5c97c804-3eb4-4e34-9355-c73119e7d8d1
+
+	measure 'Units Sold' = CALCULATE ( SUM ( orders[quantity] ), orders[order_status] = "Delivered" )
+		formatString: #,0
+		displayFolder: 1. Core
+		lineageTag: 72ff4a8f-2339-4c0e-84b0-92b24b53dcd4
+
+	measure 'Avg Order Value' = DIVIDE ( [Revenue], [Orders] )
+		formatString: #,0.00 zł
+		displayFolder: 1. Core
+		lineageTag: b1cb2282-bcba-42e7-a0d1-a26218c243e1
+
+	measure 'Return Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( orders ), orders[order_status] = "Returned" ), [All Orders] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: baab56fa-095e-426e-8d82-5d7659ee50e6
+
+	measure 'Cancel Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( orders ), orders[order_status] = "Cancelled" ), [All Orders] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: 6c46a744-dce2-4486-bec2-8a7b57bb3f1a
+
+	measure 'Revenue Share %' = DIVIDE ( [Revenue], CALCULATE ( [Revenue], ALLSELECTED ( orders ) ) )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: d9440084-1b29-4f66-b5bb-35fea13221c5
+
+	measure 'Electronics Share %' = DIVIDE ( CALCULATE ( [Revenue], orders[category] = "Electronics" ), [Revenue] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: a82dd4f0-7240-49e2-982c-b8670fa7ea2f
+
+	measure 'Large Orders Share %' = DIVIDE ( CALCULATE ( [Revenue], orders[value_band_order] = 3 ), [Revenue] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: 9f994356-5dbb-4806-bb6c-e8ce9dae4356
+
+	measure 'Warsaw Share %' = DIVIDE ( CALCULATE ( [Revenue], orders[customer_city] = "Warszawa" ), [Revenue] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: 0c124f46-e189-4fbd-9111-27b4004fe015
+
+	measure 'Paczkomat Share %' = DIVIDE ( CALCULATE ( [Orders], orders[delivery_method] = "Paczkomat InPost" ), [Orders] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: cbc38261-fee3-4133-802c-b7cbe44649f3
+
+	measure 'BLIK Share %' = DIVIDE ( CALCULATE ( [Orders], orders[payment_method] = "BLIK" ), [Orders] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: 209c6443-d5e6-4eed-8f0d-247c71fef0f0
+
+	measure 'Pay Later Share %' = DIVIDE ( CALCULATE ( [Orders], orders[payment_method] = "Pay later" ), [Orders] )
+		formatString: 0.0%
+		displayFolder: 1. Core
+		lineageTag: 4e152b1f-3876-4462-88b5-24396ffa412d
+
+	measure Cities = CALCULATE ( DISTINCTCOUNT ( orders[customer_city] ), orders[customer_city] <> "Unknown" )
+		formatString: #,0
+		displayFolder: 1. Core
+		lineageTag: 6405f5e3-026c-43f4-8af6-476024ea682e
+
+	measure 'Top Category' = MAXX ( TOPN ( 1, VALUES ( orders[category] ), [Revenue] ), orders[category] )
+		displayFolder: 4. Labels
+		lineageTag: 6f71393d-25d3-4495-a40c-e16b784b2616
+
+	measure 'Top Product' = MAXX ( TOPN ( 1, VALUES ( orders[product_name] ), [Revenue] ), orders[product_name] )
+		displayFolder: 4. Labels
+		lineageTag: ce671553-8320-49e6-8e7b-4c8b83f5ffc9
+
+	measure 'Top City' = MAXX ( TOPN ( 1, VALUES ( orders[customer_city] ), [Revenue] ), orders[customer_city] )
+		displayFolder: 4. Labels
+		lineageTag: c75aedfe-1146-4bad-b559-d4cba3fc0e89
+
+	measure 'Top Region' = MAXX ( TOPN ( 1, VALUES ( orders[region] ), [Revenue] ), orders[region] )
+		displayFolder: 4. Labels
+		lineageTag: 66216184-9938-4ec7-8093-6b7a5a4bce3d
+
+	measure Target = IF ( ISFILTERED ( orders[category] ) || ISFILTERED ( orders[product_name] ) || ISFILTERED ( orders[customer_city] ) || ISFILTERED ( orders[region] ) || ISFILTERED ( orders[payment_method] ) || ISFILTERED ( orders[delivery_method] ) || ISFILTERED ( orders[order_status] ) || ISFILTERED ( orders[value_band] ), BLANK (), SUM ( targets[target_pln] ) )
+		formatString: #,0 zł
+		displayFolder: 2. Target
+		lineageTag: af83bbd7-0b4d-4ea6-821c-c10c144fa37e
+
+	measure 'Achievement %' = DIVIDE ( [Revenue], [Target] )
+		formatString: 0.0%
+		displayFolder: 2. Target
+		lineageTag: 141ea634-17b3-49e0-b086-fa23dfe5ca4b
+
+	measure 'Variance vs Target' = IF ( NOT ISBLANK ( [Target] ), [Revenue] - [Target] )
+		formatString: #,0 zł;-#,0 zł
+		displayFolder: 2. Target
+		lineageTag: 3d83ea75-3ef3-4712-838c-c40b59587f39
+
+	measure 'Revenue YTD' = TOTALYTD ( [Revenue], 'Calendar'[Date] )
+		formatString: #,0 zł
+		displayFolder: 3. Time
+		lineageTag: 0cd1830c-7b1d-4e0d-9ae3-1a67632ed979
+
+	measure 'Target YTD' = TOTALYTD ( [Target], 'Calendar'[Date] )
+		formatString: #,0 zł
+		displayFolder: 3. Time
+		lineageTag: 70517574-1ef7-4479-8ead-c6b82ca7e357
+
+	measure 'Achievement Color' = SWITCH ( TRUE (), ISBLANK ( [Achievement %] ), "#6B6B70", [Achievement %] >= 1, "#1E8E5A", [Achievement %] >= 0.95, "#B57600", "#D7141A" )
+		displayFolder: 5. Formatting
+		lineageTag: 096563d1-cddc-4e81-afa3-c2a623e251bb
+
+	measure 'Achievement Label' = IF ( ISBLANK ( [Target] ), "target n/a", "target " & FORMAT ( [Target], "#,0" ) & " zł" )
+		displayFolder: 4. Labels
+		lineageTag: bf577f2e-1c38-4a82-84f6-698882d1b09e
+
+	measure 'Revenue PY' = CALCULATE ( [Revenue], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: f3142160-d30a-4063-9728-8190189005bc
+
+	measure 'Revenue vs PY' =
+			VAR _c = [Revenue]
+			VAR _p = [Revenue PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( DIVIDE ( _c - _p, _p ), "+0.0%;-0.0%" ) ) )
+		displayFolder: 4. Labels
+		lineageTag: b5aad1ae-8e64-45a5-a09c-8d7a47124876
+
+	measure 'Revenue vs PY Color' =
+			VAR _c = [Revenue]
+			VAR _p = [Revenue PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 9f216048-bce2-490d-871e-f76366070e40
+
+	measure 'Orders PY' = CALCULATE ( [Orders], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 5b312fb8-4fa9-42fa-9ac0-1998cf695284
+
+	measure 'Orders vs PY' =
+			VAR _c = [Orders]
+			VAR _p = [Orders PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( DIVIDE ( _c - _p, _p ), "+0.0%;-0.0%" ) ) )
+		displayFolder: 4. Labels
+		lineageTag: c3f064d1-b783-4a0b-ab2d-f0d21806d42c
+
+	measure 'Orders vs PY Color' =
+			VAR _c = [Orders]
+			VAR _p = [Orders PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: bbabc0e9-936e-4f0c-b877-8aab414d52f8
+
+	measure 'Units Sold PY' = CALCULATE ( [Units Sold], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 8299ffcb-4370-4447-88b6-d2d32d473453
+
+	measure 'Units Sold vs PY' =
+			VAR _c = [Units Sold]
+			VAR _p = [Units Sold PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( DIVIDE ( _c - _p, _p ), "+0.0%;-0.0%" ) ) )
+		displayFolder: 4. Labels
+		lineageTag: 036a59d0-5cda-478e-9f9d-fb247684d0f4
+
+	measure 'Units Sold vs PY Color' =
+			VAR _c = [Units Sold]
+			VAR _p = [Units Sold PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 71bfa92b-30d9-4d13-92ff-00606bea2337
+
+	measure 'Avg Order Value PY' = CALCULATE ( [Avg Order Value], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 3b99b272-4491-46a7-8c82-527ee66e368a
+
+	measure 'Avg Order Value vs PY' =
+			VAR _c = [Avg Order Value]
+			VAR _p = [Avg Order Value PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( DIVIDE ( _c - _p, _p ), "+0.0%;-0.0%" ) ) )
+		displayFolder: 4. Labels
+		lineageTag: f8fcc022-aa13-4b85-8bc4-2b577e714987
+
+	measure 'Avg Order Value vs PY Color' =
+			VAR _c = [Avg Order Value]
+			VAR _p = [Avg Order Value PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 4dcaae6a-7d65-4e98-83f9-f1ae81eaa14d
+
+	measure 'Return Rate % PY' = CALCULATE ( [Return Rate %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: ac85fc5e-04ba-4988-8c30-cf60205fb764
+
+	measure 'Return Rate % vs PY' =
+			VAR _c = [Return Rate %]
+			VAR _p = [Return Rate % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: f8a30cff-da95-4946-a4e5-2f3efe6ae5f3
+
+	measure 'Return Rate % vs PY Color' =
+			VAR _c = [Return Rate %]
+			VAR _p = [Return Rate % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c <= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 70b32e4a-fcf9-40a5-9c4f-53c993470033
+
+	measure 'Cancel Rate % PY' = CALCULATE ( [Cancel Rate %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 3d0fe1e7-1c1a-4f4c-beee-1acb3307636b
+
+	measure 'Cancel Rate % vs PY' =
+			VAR _c = [Cancel Rate %]
+			VAR _p = [Cancel Rate % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: eea6d582-94f7-43e1-9d57-8bee767bf024
+
+	measure 'Cancel Rate % vs PY Color' =
+			VAR _c = [Cancel Rate %]
+			VAR _p = [Cancel Rate % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c <= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 4dfef456-1f77-4b68-9276-a25bc8d43e5f
+
+	measure 'Electronics Share % PY' = CALCULATE ( [Electronics Share %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 34f5f61c-4ee7-4cc2-95a3-0859e2018e46
+
+	measure 'Electronics Share % vs PY' =
+			VAR _c = [Electronics Share %]
+			VAR _p = [Electronics Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: ca49d5a8-0acd-4216-ab98-267e448cd7fb
+
+	measure 'Electronics Share % vs PY Color' =
+			VAR _c = [Electronics Share %]
+			VAR _p = [Electronics Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 5447b044-3c9b-4db1-870b-8ca4caf4f882
+
+	measure 'Large Orders Share % PY' = CALCULATE ( [Large Orders Share %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: eefc39bd-249a-48e1-98ee-297ca9bedd40
+
+	measure 'Large Orders Share % vs PY' =
+			VAR _c = [Large Orders Share %]
+			VAR _p = [Large Orders Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: 92ca2b13-7b38-4578-a682-6d366a264a40
+
+	measure 'Large Orders Share % vs PY Color' =
+			VAR _c = [Large Orders Share %]
+			VAR _p = [Large Orders Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: ef6c68f8-9645-4a7a-8167-affe7968b53c
+
+	measure 'Warsaw Share % PY' = CALCULATE ( [Warsaw Share %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 1d739cc5-06e6-40cb-bf97-23f91074822e
+
+	measure 'Warsaw Share % vs PY' =
+			VAR _c = [Warsaw Share %]
+			VAR _p = [Warsaw Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: 404fbcf2-66a3-4cef-b2ce-ad86440abcba
+
+	measure 'Warsaw Share % vs PY Color' =
+			VAR _c = [Warsaw Share %]
+			VAR _p = [Warsaw Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: f86a0ba5-26c1-4975-b6d2-f70db676b7a5
+
+	measure 'Paczkomat Share % PY' = CALCULATE ( [Paczkomat Share %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 2ffeedf9-e528-4d69-8036-c4e60c99a11b
+
+	measure 'Paczkomat Share % vs PY' =
+			VAR _c = [Paczkomat Share %]
+			VAR _p = [Paczkomat Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: 58b13be1-b66f-4243-923a-293464dd1805
+
+	measure 'Paczkomat Share % vs PY Color' =
+			VAR _c = [Paczkomat Share %]
+			VAR _p = [Paczkomat Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: d2f0a932-2d22-466d-a7ab-0403fa1d60b1
+
+	measure 'BLIK Share % PY' = CALCULATE ( [BLIK Share %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 7be83d13-007b-45cb-9e67-0b15976a1dae
+
+	measure 'BLIK Share % vs PY' =
+			VAR _c = [BLIK Share %]
+			VAR _p = [BLIK Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: 9b148593-1d2e-4381-9aab-fa2b1e66bfde
+
+	measure 'BLIK Share % vs PY Color' =
+			VAR _c = [BLIK Share %]
+			VAR _p = [BLIK Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 37634ad8-26de-49ae-ae9c-7efa3012a089
+
+	measure 'Pay Later Share % PY' = CALCULATE ( [Pay Later Share %], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: 0e16eec5-88bd-41b0-9e62-3d59ce82d528
+
+	measure 'Pay Later Share % vs PY' =
+			VAR _c = [Pay Later Share %]
+			VAR _p = [Pay Later Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( ( _c - _p ) * 100, "+0.0;-0.0" ) & " pp" ) )
+		displayFolder: 4. Labels
+		lineageTag: 8fdb2566-853e-402e-929d-87762aabd767
+
+	measure 'Pay Later Share % vs PY Color' =
+			VAR _c = [Pay Later Share %]
+			VAR _p = [Pay Later Share % PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 0a6a6314-2b7d-4377-8bc6-eb0913e7068e
+
+	measure 'Cities PY' = CALCULATE ( [Cities], SAMEPERIODLASTYEAR ( 'Calendar'[Date] ) )
+		displayFolder: 3. Time
+		lineageTag: f98934f2-ad8f-4c2e-a696-c616f6182cc3
+
+	measure 'Cities vs PY' =
+			VAR _c = [Cities]
+			VAR _p = [Cities PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ), "2024–2025 total",
+					IF ( ISBLANK ( _p ), "no prior year", "vs PY  " & IF ( _c >= _p, "▲ ", "▼ " ) & FORMAT ( _c - _p, "+0;-0" ) ) )
+		displayFolder: 4. Labels
+		lineageTag: c184e841-70db-45c5-90d8-a91383c5d458
+
+	measure 'Cities vs PY Color' =
+			VAR _c = [Cities]
+			VAR _p = [Cities PY]
+			RETURN
+				IF ( NOT HASONEVALUE ( 'Calendar'[Year] ) || ISBLANK ( _p ), "#6B6B70", IF ( _c >= _p, "#1E8E5A", "#D7141A" ) )
+		displayFolder: 5. Formatting
+		lineageTag: 273592ec-9d7f-4729-a490-6ea2d6edd293
+
+	measure 'Data As Of' = "Data as of " & FORMAT ( CALCULATE ( MAX ( orders[order_date] ), ALL ( orders ) ), "dd MMM yyyy" )
+		displayFolder: 4. Labels
+		lineageTag: 6a595a1e-21ef-4191-b87a-2afeb458a1af
+
+	column Dummy
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 71ab82ec-1034-4ea6-9175-1283e93dc28e
+		summarizeBy: none
+		sourceColumn: [Dummy]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW ( "Dummy", 0 )
+

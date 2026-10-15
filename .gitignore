@@ -1,0 +1,13 @@
+# Python
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+Python/rascunho.ipynb
+
+# Power BI (local cache and user settings, rebuilt on refresh)
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+*.pbix.bak
+
+# Delivery zip (the extracted dashboard/ folder is versioned instead)
+dashboard.zip

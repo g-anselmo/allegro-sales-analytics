@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Allegro_Sales_Analytics"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "4cf95673-b702-4f0a-b9ca-dc7fb4e28379"
+  }
+}

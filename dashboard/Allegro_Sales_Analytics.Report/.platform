@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Allegro_Sales_Analytics"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "f2d00a34-5336-4414-9028-6199526c0701"
+  }
+}

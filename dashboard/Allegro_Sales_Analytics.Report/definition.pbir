@@ -1,0 +1,8 @@
+{
+  "version": "4.0",
+  "datasetReference": {
+    "byPath": {
+      "path": "../Allegro_Sales_Analytics.SemanticModel"
+    }
+  }
+}

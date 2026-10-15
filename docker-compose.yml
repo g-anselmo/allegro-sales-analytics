@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: teste123
+      POSTGRES_DB: allegro_sales
+    volumes:
+      - "./sql/01_create_tables.sql:/docker-entrypoint-initdb.d/01_create_tables.sql"
+      - "./data:/data"
+      - "./sql/02_load_data.sql:/docker-entrypoint-initdb.d/02_load_data.sql"

@@ -1,0 +1,142 @@
+table orders
+	lineageTag: cfc98315-0e26-4d66-ba38-0172038d3f17
+
+	column order_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 180dd593-ffd0-4b80-ab24-ffc8a4ee899f
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 6f2db0a2-7ef5-4434-8296-c758a8b2f958
+		summarizeBy: none
+		sourceColumn: order_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column category
+		dataType: string
+		lineageTag: 4f39f736-57e7-4fa7-a098-82d3e3220472
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: d49e0bdd-f9b8-47bc-9b9a-34c7d1ab21a1
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_price_pln
+		dataType: double
+		formatString: #,0.00 zł
+		lineageTag: c4689768-e501-44b1-9d3d-79902d694ff7
+		summarizeBy: none
+		sourceColumn: unit_price_pln
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 2985853c-3265-4af8-8678-ea2457d92953
+		summarizeBy: none
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_city
+		dataType: string
+		lineageTag: 78022a3c-dd15-487f-9580-2026cb61a0e0
+		summarizeBy: none
+		sourceColumn: customer_city
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: 1471d2e8-e1bd-42e2-bb9c-66f0011f49b5
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_method
+		dataType: string
+		lineageTag: 2056d5df-c37f-4955-93e5-0c6e8ad9cfb3
+		summarizeBy: none
+		sourceColumn: payment_method
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_method
+		dataType: string
+		lineageTag: 0b64fe46-d327-4ee1-8df5-334485a85f37
+		summarizeBy: none
+		sourceColumn: delivery_method
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_status
+		dataType: string
+		lineageTag: 0a68cc71-612b-41a8-b10b-5d7c3490118d
+		summarizeBy: none
+		sourceColumn: order_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column revenue_pln
+		dataType: double
+		formatString: #,0.00 zł
+		lineageTag: f4824964-9511-49b0-9791-99221ac4b7de
+		summarizeBy: none
+		sourceColumn: revenue_pln
+
+		annotation SummarizationSetBy = Automatic
+
+	column value_band
+		dataType: string
+		lineageTag: 72962d39-afaa-4e96-a5d3-ca92e9e1f45a
+		summarizeBy: none
+		sourceColumn: value_band
+		sortByColumn: value_band_order
+
+		annotation SummarizationSetBy = Automatic
+
+	column value_band_order
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: db92a7a6-e7c8-4740-9335-262fc82b8b30
+		summarizeBy: none
+		sourceColumn: value_band_order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition orders = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "clean\orders_clean.csv"), [Delimiter=",", Columns=12, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"order_id", Int64.Type}, {"order_date", type date}, {"category", type text}, {"product_name", type text}, {"unit_price_pln", type number}, {"quantity", Int64.Type}, {"customer_city", type text}, {"region", type text}, {"payment_method", type text}, {"delivery_method", type text}, {"order_status", type text}, {"revenue_pln", type number}}, "en-US"),
+				    PaymentNull = Table.ReplaceValue(Typed, null, "Unknown", Replacer.ReplaceValue, {"payment_method"}),
+				    Payment = Table.ReplaceValue(PaymentNull, "", "Unknown", Replacer.ReplaceValue, {"payment_method"}),
+				    AddBand = Table.AddColumn(Payment, "value_band", each if [revenue_pln] = null then "No quantity" else if [revenue_pln] < 100 then "Small (<100 zł)" else if [revenue_pln] < 1000 then "Medium (100–999 zł)" else "Large (1,000+ zł)", type text),
+				    AddBandOrder = Table.AddColumn(AddBand, "value_band_order", each if [revenue_pln] = null then 4 else if [revenue_pln] < 100 then 1 else if [revenue_pln] < 1000 then 2 else 3, Int64.Type)
+				in
+				    AddBandOrder
+
+	annotation PBI_ResultType = Table
+
